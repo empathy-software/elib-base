@@ -2,6 +2,13 @@
 # Changelog
 
 
+## [4.2.3] = 2026-07-06
+
+### Fixed
+
+- Add guard to prevent any shipping address derived fields from being populated
+
+
 ## [4.2.2] = 2026-04-12
 
 ### Fixed

@@ -73,29 +73,52 @@ class Controller extends EController
         $errors = [];
         $submitted = false;
         $supply_address = false;
+        $user = null;
+        $address = null;
 
         if (isset($_POST['submit'])) {
             $submitted = true;
-            $this->nullify($_POST['first_name']);
-            $this->nullify($_POST['last_name']);
 
-            $_POST['first_name'] = $_POST['first_name'] ?? 'Not provided';
-            $_POST['last_name'] = $_POST['last_name'] ?? 'Not provided';
+            $supply_address = (
+                isset($_POST['supply_address']) &&
+                $_POST['supply_address'] === 'on'
+            );
 
-            $supply_address = (isset($_POST['supply_address']) && $_POST['supply_address'] === 'on') ? true : false;
-
-            $username = $_POST['username'] ?? '';
-            $username = strtolower($username);
+            // Always collect these
+            $username = strtolower($_POST['username'] ?? '');
             $email = $_POST['email'] ?? '';
-            $fullname = $_POST['fullname'] ?? '';
-            $first_name = $_POST['first_name'];
-            $last_name = $_POST['last_name'];
-            $address1 = $_POST['address1'] ?? '';
-            $address2 = $_POST['address2'] ?? '';
-            $city = $_POST['city'] ?? '';
-            $state = $_POST['state'] ?? '';
-            $zip = $_POST['zip'] ?? '';
-            $country = $_POST['country'] ?? '';
+
+            // Defaults when address is not supplied
+            $fullname = '';
+            $first_name = 'Not provided';
+            $last_name = 'Not provided';
+            $address1 = '';
+            $address2 = '';
+            $city = '';
+            $state = '';
+            $zip = '';
+            $country = '';
+
+            // Only collect these when address/shipping is supplied
+            if ($supply_address) {
+                $fullname = $_POST['fullname'] ?? '';
+
+                $first_name = $_POST['first_name'] ?? null;
+                $last_name = $_POST['last_name'] ?? null;
+
+                $this->nullify($first_name);
+                $this->nullify($last_name);
+
+                $first_name = $first_name ?? 'Not provided';
+                $last_name = $last_name ?? 'Not provided';
+
+                $address1 = $_POST['address1'] ?? '';
+                $address2 = $_POST['address2'] ?? '';
+                $city = $_POST['city'] ?? '';
+                $state = $_POST['state'] ?? '';
+                $zip = $_POST['zip'] ?? '';
+                $country = $_POST['country'] ?? '';
+            }
 
             list($errors, $user, $address) = $this->currentUser->doRegister(
                 $supply_address,
@@ -115,14 +138,17 @@ class Controller extends EController
             if (!sizeof($errors)) {
                 $this->redirect('user/thanks/1');
             } else {
-                $address->first_name = (
-                    isset($address->first_name) &&
-                    $address->first_name === 'Not provided'
-                ) ? '' : $address->first_name ?? '';
-                $address->last_name = (
-                    isset($address->last_name) &&
-                    $address->last_name === 'Not provided'
-                ) ? '' : $address->last_name ?? '';
+                if ($address) {
+                    $address->first_name = (
+                        isset($address->first_name) &&
+                        $address->first_name === 'Not provided'
+                    ) ? '' : $address->first_name ?? '';
+
+                    $address->last_name = (
+                        isset($address->last_name) &&
+                        $address->last_name === 'Not provided'
+                    ) ? '' : $address->last_name ?? '';
+                }
 
                 $this->assign('user', $user);
                 $this->assign('address', $address);
@@ -131,10 +157,15 @@ class Controller extends EController
 
         $titles = ['Mr', 'Mrs', 'Miss', 'Ms', 'Dr'];
         $countries = Country::build();
+
         $this->assign('errors', $errors);
         $this->assign('titles', $titles);
         $this->assign('countries', $countries);
-        $this->assign('sc', ($submitted && $supply_address) ? $address->country : 'GB');
+        $this->assign(
+            'sc',
+            ($submitted && $supply_address && $address) ? $address->country : 'GB'
+        );
+
         $this->setTemplate('elib://register.tpl');
         $this->assign('submitted', $submitted);
         $this->assign('supply_address', $supply_address);
