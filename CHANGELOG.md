@@ -2,6 +2,13 @@
 # Changelog
 
 
+## [4.2.4] = 2026-07-14
+
+### Fixed
+
+- Allow ELib controllers to disable session
+
+
 ## [4.2.3] = 2026-07-06
 
 ### Fixed

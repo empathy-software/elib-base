@@ -14,9 +14,9 @@ class EController extends CustomController
     /** @var list<string>|null */
     protected ?array $elib_tpl_dirs;
 
-    public function __construct(Bootstrap $boot)
+    public function __construct(Bootstrap $boot, $useSession = true)
     {
-        parent::__construct($boot);
+        parent::__construct($boot, $useSession);
 
         DI::getContainer()->get('CurrentUser')->detectUser($this);
         $this->elib_tpl_dirs = Util\Libs::detect();
