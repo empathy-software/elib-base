@@ -35,6 +35,9 @@ class UserItem extends Entity
 
     public mixed $about = null;
 
+    const REG_LENGTH = 4;
+
+
     public function validates(bool $email_check = true): void
     {
         if ($this->doValType(Validate::USERNAME, 'username', $this->username, false)) {
@@ -64,12 +67,10 @@ class UserItem extends Entity
         $this->validatePassword();
     }
 
-
     public function validatePassword(): void
     {
         $this->doValType(Validate::TEXT, 'password', $this->password, false);
     }
-
 
     public function getUsername(int|string $id): mixed
     {
@@ -264,5 +265,35 @@ class UserItem extends Entity
             $user_id = $row['id'];
         }
         return $user_id ?? 0;
+    }
+
+    public function getInactiveByEmail($email, $reg)
+    {
+        $table = $this::TABLE;
+        $params = [];
+        $user_id = 0;
+        $sql = "SELECT id FROM $table"
+            .' WHERE (email = ? and reg_code like ?)'
+            .' AND active = 0';
+        $params[] = $email;
+        $params[] = $reg . '%';
+        $error = 'Could not inactive user by email.';
+        $result = $this->query($sql, $error, $params);
+        $rows = $result->rowCount();
+        if ($rows == 1) {
+            $row = $result->fetch();
+            $user_id = $row['id'];
+        }
+        return $user_id ?? 0;
+    }
+
+    public function validateConfirmReg()
+    {
+        $this->doValType(Validate::EMAIL, 'email', $this->email, false);
+        if ($this->doValType(Validate::ALNUM, 'reg_code', $this->reg_code, false)) {
+            if (strlen($this->reg_code) !== self::REG_LENGTH) {
+                $this->addValError('Invalid code', 'reg');
+            }
+        }
     }
 }

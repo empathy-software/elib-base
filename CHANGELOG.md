@@ -6,7 +6,7 @@
 
 ### Added
 
-- Add generic get user by username function from `elib-acl`
+- Add generic methods from `elib-acl`
 
 
 ## [4.2.4] = 2026-07-14
