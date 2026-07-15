@@ -2,6 +2,13 @@
 # Changelog
 
 
+## [4.2.5] = 2026-07-15
+
+### Added
+
+- Add generic get user by username function from `elib-acl`
+
+
 ## [4.2.4] = 2026-07-14
 
 ### Fixed
