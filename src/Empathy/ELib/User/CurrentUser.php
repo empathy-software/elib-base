@@ -210,6 +210,20 @@ class CurrentUser
         }
     }
 
+    public function getProto()
+    {
+        $proto = 'http';
+        try {
+            $smartySSLPlugin = DI::getContainer()->get('PluginManager')->find(['SmartySSL']);
+            if ($smartySSLPlugin !== null) {
+                $proto = 'https';
+            }
+        } catch (\Exception $e) {
+            //
+        }
+        return $proto;
+    }
+
     public function sendConfirmationEmail(UserItem $u, string $reg_code): ?bool
     {
         if (
@@ -220,7 +234,7 @@ class CurrentUser
                 . 'Thanks for registering with ' . ELibConfig::get('EMAIL_ORGANISATION') . "\n\nBefore we can let you"
                 . ' know your password for using the site, please confirm your email address'
                 . " by clicking the following link:\n\n"
-                . 'http://' . Config::get('WEB_ROOT') . Config::get('PUBLIC_DIR') . '/user/confirm_reg/?code=' . $reg_code
+                . $this->getProto() . '://' . Config::get('WEB_ROOT') . Config::get('PUBLIC_DIR') . '/user/confirm_reg/?code=' . $reg_code
                 . "\n\nCheers\n\n";
             if ($u->fullname === 'Not provided Not provided') {
                 $_POST['body'] = str_replace('Hi ___,', 'Hi,', $_POST['body']);
@@ -344,6 +358,9 @@ class CurrentUser
             $u->activated = 'MYSQLTIME';
             $u->save();
 
+            // Log the user into the PHP session for the classic web confirm flow.
+            // Safe on API/JWT requests: Empathy Session methods are no-ops when
+            // Session::up() was not called (controllers bootstrapped with useSession=false).
             Session::set('user_id', $u->id);
 
             $_POST['body'] = "\nHi ___,\n\n"

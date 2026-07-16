@@ -2,6 +2,17 @@
 # Changelog
 
 
+## [4.2.7] = 2026-07-15
+
+### Added
+
+- `getProto()` helper and use it for registration confirmation email links (https when SmartySSL is present)
+
+### Changed
+
+- Require `mikejw/empathy` `^4.4.9`
+
+
 ## [4.2.5] = 2026-07-15
 
 ### Added
