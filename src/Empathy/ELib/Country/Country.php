@@ -67,11 +67,19 @@ class Country
         return in_array($code, self::$europeanCountryCodes, true);
     }
 
+    /** @var array<string, string>|null */
+    private static ?array $builtCache = null;
+
     /**
      * @return array<string, string>
      */
     public static function build(): array
     {
+        // Parse countries.html once per request — cart / checkout call this often.
+        if (self::$builtCache !== null) {
+            return self::$builtCache;
+        }
+
         //$pathToEmp = explode('empathy', __FILE__);
         //if(($fp = @fopen($pathToEmp[0].SOURCE, 'r')) == false)
         if (($fp = @fopen(SOURCE, 'r')) === false) {
@@ -135,11 +143,11 @@ class Country
 
         $built = [];
         foreach ($country['code'] as $index => $value) {
-            $codeKey = (string) preg_replace('/[^\w]/', '', $value);
+            $codeKey = (string) preg_replace('/[^\w]+/', '', $value);
             $name = $country['name'][$index] ?? '';
             $built[$codeKey] = trim((string) $name);
         }
 
-        return $built;
+        return self::$builtCache = $built;
     }
 }

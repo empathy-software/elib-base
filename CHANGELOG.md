@@ -2,6 +2,13 @@
 # Changelog
 
 
+## [4.2.8] = 2026-11-20
+
+### Changed
+
+- Cache `Country::build()` for the request lifetime (cart/checkout call it repeatedly; avoid re-parsing `countries.html`)
+
+
 ## [4.2.7] = 2026-07-15
 
 ### Added
