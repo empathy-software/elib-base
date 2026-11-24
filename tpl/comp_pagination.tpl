@@ -4,7 +4,7 @@
     <nav aria-label="Page navigation">
         <ul class="pagination pt-2 pb-5 justify-content-end">
             <li class="page-item{if $page eq 1} disabled{/if} {if $full}flex-grow-1{/if}">
-                <a class="page-link text-center" href="?page={$page - 1}" aria-label="Previous">
+                <a class="page-link text-center" href="?page={$page - 1}{if isset($filter_vendor_id) && $filter_vendor_id}&amp;vendor_id={$filter_vendor_id}{/if}" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                     {if !$minimal}
                         <span class="sr-only">Previous</span>
@@ -13,14 +13,14 @@
             </li>
             {foreach from=$p_nav key=k item=v}
                 <li class="page-item{if $v} disabled{/if} {if $full}flex-grow-1{/if}">
-                    <a class="text-center page-link" href="?page={$k}">
+                    <a class="text-center page-link" href="?page={$k}{if isset($filter_vendor_id) && $filter_vendor_id}&amp;vendor_id={$filter_vendor_id}{/if}">
                         {$k}
                     </a>
                 </li>
                 {assign var="lastPage" value=$k}
             {/foreach}
             <li class="page-item{if $page eq $lastPage} disabled{/if} {if $full}flex-grow-1{/if}">
-                <a class="text-center page-link" href="?page={$page + 1}" aria-label="Next">
+                <a class="text-center page-link" href="?page={$page + 1}{if isset($filter_vendor_id) && $filter_vendor_id}&amp;vendor_id={$filter_vendor_id}{/if}" aria-label="Next">
                     {if !$minimal}
                         <span class="sr-only">Next</span>
                     {/if}

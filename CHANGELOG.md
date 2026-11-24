@@ -2,6 +2,19 @@
 # Changelog
 
 
+## [4.2.9] = 2026-11-24
+
+### Added
+
+- Soft multi-vendor hooks in `CurrentUser` when `VendorContext` is available (elib-store): stash vendor/authorId, assign admin template flags, enforce vendor admin module allow-list
+- Admin breadcrumb segments for Orders, Promos, and promo detail/edit/upload
+
+### Changed
+
+- `assertAdmin` / `isAdmin`: vendor-row holders may enter admin when multi-vendor is on; `isAdmin` means unscoped/platform admin only
+- Admin pagination preserves optional `vendor_id` filter query param
+
+
 ## [4.2.8] = 2026-11-20
 
 ### Changed

@@ -12,7 +12,7 @@
         {* store *}
         {if $class eq 'admin' && $event eq 'store'}
             <li class="breadcrumb-item">Store</li>
-        {elseif $class eq 'vendors' || $class eq 'brand' || $class eq 'artist' || $class eq 'orders' || $class eq 'category' || $class eq 'properties' || $class eq 'product' || $class eq 'promo_category'}
+        {elseif $class eq 'vendors' || $class eq 'brand' || $class eq 'artist' || $class eq 'orders' || $class eq 'category' || $class eq 'properties' || $class eq 'product' || $class eq 'promo_category' || $class eq 'promo'}
             <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/store">Store</a></li>{/if}
 
 
@@ -82,6 +82,22 @@
             <li class="breadcrumb-item">Vendors</li>
         {elseif $class eq 'brand'}
             <li class="breadcrumb-item">Brands</li>
+        {elseif $class eq 'orders'}
+            <li class="breadcrumb-item">Orders</li>
+        {elseif $class eq 'promo_category'}
+            <li class="breadcrumb-item">Promos</li>
+        {elseif $class eq 'promo'}
+            <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/promo_category">Promos</a></li>
+            {if $event eq 'default_event'}
+                <li class="breadcrumb-item">{$promo->name|escape}</li>
+            {else}
+                <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/promo/{$promo->id}">{$promo->name|escape}</a></li>
+                {if $event eq 'edit'}
+                    <li class="breadcrumb-item">Edit</li>
+                {elseif $event eq 'upload_image'}
+                    <li class="breadcrumb-item">Upload Image</li>
+                {/if}
+            {/if}
         {/if}
 
 

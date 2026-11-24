@@ -92,26 +92,117 @@ class CurrentUser
             $controller->assign('user_id', $this->u->id);
             $this->loaded = true;
         }
+
+        $this->applyVendorContext($controller);
+    }
+
+    /**
+     * Soft multi-vendor hooks when VendorContext is available (elib-store).
+     * Apps may bind DI key VendorContextClass to a subclass.
+     */
+    protected function applyVendorContext(mixed $controller = null): void
+    {
+        $vc = $this->resolveVendorContextClass();
+        if ($vc === null || !$vc::multipleVendorsEnabled()) {
+            return;
+        }
+
+        $stash = DI::getContainer()->get('Stash');
+        $vendor = null;
+        if ($vc::isVendorOperator()) {
+            $vendor = $vc::currentVendorRow();
+            if ($vendor !== null) {
+                $stash->store('authorId', $vendor['user_id']);
+            }
+        }
+        $stash->store('vendor', $vendor);
+
+        if ($controller !== null) {
+            $controller->assign('vendorRead', $vendor);
+            $controller->assign('is_vendor_operator', $vc::isVendorOperator());
+            $controller->assign('is_platform_admin', $vc::isPlatformAdmin());
+        }
+
+        $this->enforceVendorAdminAllowList($controller);
+    }
+
+    /**
+     * @return class-string|null
+     */
+    protected function resolveVendorContextClass(): ?string
+    {
+        try {
+            $container = DI::getContainer();
+            if ($container->has('VendorContextClass')) {
+                $class = $container->get('VendorContextClass');
+                if (is_string($class) && class_exists($class)) {
+                    return $class;
+                }
+            }
+        } catch (\Throwable) {
+            //
+        }
+        $default = 'Empathy\\ELib\\Vendor\\VendorContext';
+
+        return class_exists($default) ? $default : null;
+    }
+
+    /**
+     * Vendor operators may only use allow-listed admin modules.
+     */
+    protected function enforceVendorAdminAllowList(mixed $controller = null): void
+    {
+        $vc = $this->resolveVendorContextClass();
+        if ($controller === null || $vc === null || !$vc::isVendorOperator()) {
+            return;
+        }
+        if ($controller->getModule() !== 'admin') {
+            return;
+        }
+        if (!in_array($controller->getClass(), $vc::vendorAdminClasses(), true)) {
+            throw new RequestException('Denied', RequestException::NOT_AUTHORIZED);
+        }
     }
 
     public function assertAdmin(mixed $ctrl = null): void
     {
         $controller = $ctrl ?? DI::getContainer()->get('Controller');
         $ua = new UserAccess();
-        if ($this->u === null || $this->u->id < 1 || $this->u->getAuth($this->u->id) < $ua->getLevel('admin')) {
+
+        if ($this->u === null || (int) $this->u->id < 1) {
             Session::down();
             $controller->redirect('user/login');
+
+            return;
         }
+
+        if ($this->u->getAuth($this->u->id) >= $ua->getLevel('admin')) {
+            return;
+        }
+
+        // Multi-vendor: vendor-row holders may enter admin (module allow-list elsewhere).
+        $vc = $this->resolveVendorContextClass();
+        if ($vc !== null
+            && $vc::multipleVendorsEnabled()
+            && $vc::resolveVendorIdForUser((int) $this->u->id) > 0
+        ) {
+            return;
+        }
+
+        Session::down();
+        $controller->redirect('user/login');
     }
 
     public function isAdmin(UserItem $u): bool
     {
-        $admin = false;
-        $ua = new UserAccess();
-        if (!($u->auth < $ua->getLevel('admin'))) {
-            $admin = true;
+        $vc = $this->resolveVendorContextClass();
+        if ($vc !== null && $vc::multipleVendorsEnabled()) {
+            // Unscoped admins only — vendor operators pass assertAdmin but are not "super".
+            return $vc::isUnscopedAdmin($u);
         }
-        return $admin;
+        $ua = new UserAccess();
+
+        return !($u->auth < $ua->getLevel('admin'));
     }
 
     public function getUserID(): int
