@@ -2,6 +2,17 @@
 # Changelog
 
 
+## [4.2.11] = 2026-11-26
+
+### Added
+
+- `Contact::resolveRecipientAddress()` hook so apps can override the contact-form recipient (defaults to `email_recipient`)
+- Admin breadcrumb for Vendors edit
+
+### Changed
+
+- `Contact::sendEmail()` uses `resolveRecipientAddress()` instead of requiring `EMAIL_RECIPIENT` before looking up organisation/from
+
 ## [4.2.10] = 2026-11-26
 
 ### Added

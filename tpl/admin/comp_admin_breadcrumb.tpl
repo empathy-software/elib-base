@@ -79,7 +79,14 @@
                 <li class="breadcrumb-item">Properties</li>
             {/if}
         {elseif $class eq 'vendors'}
-            <li class="breadcrumb-item">Vendors</li>
+            {if $event eq 'default_event'}
+                <li class="breadcrumb-item">Vendors</li>
+            {else}
+                <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/vendors">Vendors</a></li>
+                {if $event eq 'edit'}
+                    <li class="breadcrumb-item">Edit{if isset($vendor) && $vendor->display_name} — {$vendor->display_name|escape}{elseif isset($vendor) && $vendor->name} — {$vendor->name|escape}{/if}</li>
+                {/if}
+            {/if}
         {elseif $class eq 'payment_providers'}
             {if $event eq 'default_event'}
                 <li class="breadcrumb-item">Payment providers</li>

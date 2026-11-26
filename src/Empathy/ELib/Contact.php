@@ -50,24 +50,36 @@ class Contact
 
     public function sendEmail(): void
     {
-        $r = [];
-        if (
-            Config::get('EMAIL_ORGANISATION') &&
-            Config::get('EMAIL_FROM') &&
-            Config::get('EMAIL_RECIPIENT')
-        ) {
-            $r[0]['alias'] = Config::get('EMAIL_RECIPIENT');
-            $r[0]['address'] = Config::get('EMAIL_RECIPIENT');
-
-            $messageOut = 'Message sent from: '
-                .$this->entity->first_name. ' ' .$this->entity->last_name
-                .' - '.$this->entity->email."\n\n\n\n"
-                .$this->entity->body;
-
-            $m = new Mailer($r, $this->entity->subject, $messageOut, null);
-        } else {
+        if (!Config::get('EMAIL_ORGANISATION') || !Config::get('EMAIL_FROM')) {
             throw new \Exception('Email service config not set in elib.yml');
         }
+
+        $recipient = $this->resolveRecipientAddress();
+        if ($recipient === '') {
+            throw new \Exception('Email recipient not configured');
+        }
+
+        $r = [];
+        $r[0]['alias'] = $recipient;
+        $r[0]['address'] = $recipient;
+
+        $messageOut = 'Message sent from: '
+            .$this->entity->first_name. ' ' .$this->entity->last_name
+            .' - '.$this->entity->email."\n\n\n\n"
+            .$this->entity->body;
+
+        new Mailer($r, $this->entity->subject, $messageOut, null);
+    }
+
+    /**
+     * Contact form destination. Apps may override (e.g. vendor owner email).
+     * Falls back to elib.yml `email_recipient`.
+     */
+    protected function resolveRecipientAddress(): string
+    {
+        $cfg = Config::get('EMAIL_RECIPIENT');
+
+        return is_string($cfg) ? trim($cfg) : '';
     }
 
     public function prepareDispatch(mixed $user_id, bool $html = false): bool
