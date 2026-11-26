@@ -2,6 +2,13 @@
 # Changelog
 
 
+## [4.2.10] = 2026-11-26
+
+### Added
+
+- Assign `is_super_admin` and `is_unscoped_admin` template flags from `VendorContext` in multi-vendor admin
+- Admin breadcrumb for Payment providers (list / add / edit)
+
 ## [4.2.9] = 2026-11-24
 
 ### Added

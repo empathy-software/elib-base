@@ -12,7 +12,7 @@
         {* store *}
         {if $class eq 'admin' && $event eq 'store'}
             <li class="breadcrumb-item">Store</li>
-        {elseif $class eq 'vendors' || $class eq 'brand' || $class eq 'artist' || $class eq 'orders' || $class eq 'category' || $class eq 'properties' || $class eq 'product' || $class eq 'promo_category' || $class eq 'promo'}
+        {elseif $class eq 'vendors' || $class eq 'brand' || $class eq 'artist' || $class eq 'orders' || $class eq 'category' || $class eq 'properties' || $class eq 'product' || $class eq 'promo_category' || $class eq 'promo' || $class eq 'payment_providers'}
             <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/store">Store</a></li>{/if}
 
 
@@ -80,6 +80,19 @@
             {/if}
         {elseif $class eq 'vendors'}
             <li class="breadcrumb-item">Vendors</li>
+        {elseif $class eq 'payment_providers'}
+            {if $event eq 'default_event'}
+                <li class="breadcrumb-item">Payment providers</li>
+            {else}
+                <li class="breadcrumb-item"><a href="http://{$WEB_ROOT}{$PUBLIC_DIR}/admin/payment_providers{if isset($provider) && $provider->vendor_id}?vendor_id={$provider->vendor_id}{elseif isset($vendor_id) && $vendor_id}?vendor_id={$vendor_id}{/if}">Payment providers</a></li>
+                {if $event eq 'edit'}
+                    <li class="breadcrumb-item">{if isset($provider) && $provider->id}Edit{else}Add{/if}</li>
+                {elseif $event eq 'activate'}
+                    <li class="breadcrumb-item">Activate</li>
+                {elseif $event eq 'delete'}
+                    <li class="breadcrumb-item">Delete</li>
+                {/if}
+            {/if}
         {elseif $class eq 'brand'}
             <li class="breadcrumb-item">Brands</li>
         {elseif $class eq 'orders'}

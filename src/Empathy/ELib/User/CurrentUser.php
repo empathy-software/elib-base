@@ -121,6 +121,8 @@ class CurrentUser
             $controller->assign('vendorRead', $vendor);
             $controller->assign('is_vendor_operator', $vc::isVendorOperator());
             $controller->assign('is_platform_admin', $vc::isPlatformAdmin());
+            $controller->assign('is_super_admin', $vc::isSuperAdmin());
+            $controller->assign('is_unscoped_admin', $vc::isUnscopedAdmin());
         }
 
         $this->enforceVendorAdminAllowList($controller);
